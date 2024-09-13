@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Representación 3D con Efectos y Sonido</title>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <canvas id="canvas3d"></canvas>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Configuración inicial
+        const canvas = document.getElementById('canvas3d');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Añadir luces a la escena
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // Luz ambiental suave
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // Luz direccional fuerte
+        directionalLight.position.set(5, 5, 5).normalize();
+        scene.add(directionalLight);
+
+        // Cargar una textura
+        const textureLoader = new THREE.TextureLoader();
+        const texture = textureLoader.load('https://imagenes.20minutos.es/files/gallery_desktop_default_content/uploads/imagenes/2023/02/15/aston-martin.jpeg'); // URL de la imagen proporcionada
+
+        // Crear un cubo con la textura y material estándar (dimensiones 3x3x3)
+        const geometry = new THREE.BoxGeometry(3, 3, 3);
+        const material = new THREE.MeshStandardMaterial({ map: texture });
+        const cube = new THREE.Mesh(geometry, material);
+        scene.add(cube);
+
+        // Posición de la cámara
+        camera.position.z = 10;
+
+        // Añadir sonido
+        const listener = new THREE.AudioListener();
+        camera.add(listener);
+
+        // Cargar y reproducir sonido
+        const audioLoader = new THREE.AudioLoader();
+        const sound = new THREE.Audio(listener);
+
+        // Cargar el sonido desde una URL (puedes reemplazarlo con otro archivo)
+        audioLoader.load('https://www.soundjay.com/button/beep-07.mp3', function(buffer) {
+            sound.setBuffer(buffer);
+            sound.setLoop(true);
+            sound.setVolume(0.5);
+            sound.play();
+        });
+
+        // Animación
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Rotación del cubo
+            cube.rotation.x += 0.01;
+            cube.rotation.y += 0.01;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Ajuste del tamaño del canvas cuando se redimensiona la ventana
+        window.addEventListener('resize', () => {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            renderer.setSize(width, height);
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+        });
+    </script>
+</body>
+</html>
