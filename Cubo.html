@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Representación 3D con Efectos y Sonido</title>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+        iframe {
+            position: absolute;
+            top: -10000px; /* Fuera de la pantalla para ocultarlo */
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas3d"></canvas>
+
+    <!-- Embed del video de YouTube -->
+    <iframe 
+        width="560" 
+        height="315" 
+        src="https://www.youtube.com/embed/8AYy-BcjRXg?autoplay=1&mute=0&loop=1&playlist=8AYy-BcjRXg" 
+        frameborder="0" 
+        allow="autoplay; encrypted-media" 
+        allowfullscreen>
+    </iframe>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Configuración inicial
+        const canvas = document.getElementById('canvas3d');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Añadir luces a la escena
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // Luz ambiental suave
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // Luz direccional fuerte
+        directionalLight.position.set(5, 5, 5).normalize();
+        scene.add(directionalLight);
+
+        // Cargar una textura
+        const textureLoader = new THREE.TextureLoader();
+        const texture = textureLoader.load('https://imagenes.20minutos.es/files/gallery_desktop_default_content/uploads/imagenes/2023/02/15/aston-martin.jpeg'); // URL de la imagen proporcionada
+
+        // Crear un cubo más grande con la textura y material estándar
+        const geometry = new THREE.BoxGeometry(4, 4, 4); // Cambia las dimensiones a 3x3x3
+        const material = new THREE.MeshStandardMaterial({ map: texture });
+        const cube = new THREE.Mesh(geometry, material);
+        scene.add(cube);
+
+        // Posición de la cámara
+        camera.position.z = 8; // Alejar la cámara para ajustar al nuevo tamaño del cubo
+
+        // Animación
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Rotación del cubo
+            cube.rotation.x += 0.01;
+            cube.rotation.y += 0.01;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Ajuste del tamaño del canvas cuando se redimensiona la ventana
+        window.addEventListener('resize', () => {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            renderer.setSize(width, height);
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+        });
+    </script>
+</body>
+</html>
